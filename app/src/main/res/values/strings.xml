@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BDFInanceInternshipApp</string>
+    <string name="bd_finance">BD Finance</string>
+    <string name="email">Email</string>
+    <string name="email_edittext_hint">eg: your name@bdfinance.net</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+</resources>
