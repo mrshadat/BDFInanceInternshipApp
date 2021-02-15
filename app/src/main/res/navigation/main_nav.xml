@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/homeFragment">
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.mrshadat.bdfinanceinternshipapp.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/customerInfoFragment"
+        android:name="com.mrshadat.bdfinanceinternshipapp.CustomerInfoFragment"
+        android:label="fragment_customer_info"
+        tools:layout="@layout/fragment_customer_info" />
+    <fragment
+        android:id="@+id/allVisitFragment"
+        android:name="com.mrshadat.bdfinanceinternshipapp.AllVisitFragment"
+        android:label="fragment_all_visit"
+        tools:layout="@layout/fragment_all_visit" />
+    <fragment
+        android:id="@+id/clientAppointmentFragment"
+        android:name="com.mrshadat.bdfinanceinternshipapp.ClientAppointmentFragment"
+        android:label="fragment_client_appointment"
+        tools:layout="@layout/fragment_client_appointment" />
+    <fragment
+        android:id="@+id/depositProductFragment"
+        android:name="com.mrshadat.bdfinanceinternshipapp.DepositProductFragment"
+        android:label="fragment_deposit_product"
+        tools:layout="@layout/fragment_deposit_product" />
+    <fragment
+        android:id="@+id/loanProductFragment"
+        android:name="com.mrshadat.bdfinanceinternshipapp.LoanProductFragment"
+        android:label="fragment_loan_product"
+        tools:layout="@layout/fragment_loan_product" />
+</navigation>
