@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<layout>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,8 +11,9 @@
         android:id="@+id/recycler_all_visit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/recycler_all_visit_item">
+        tools:listitem="@layout/recycler_customer_item">
 
     </androidx.recyclerview.widget.RecyclerView>
 
 </FrameLayout>
+</layout>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "748707610817",
+    "project_id": "bdfinanceappdatabase-r7",
+    "storage_bucket": "bdfinanceappdatabase-r7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748707610817:android:17f40735b4d068562bd440",
+        "android_client_info": {
+          "package_name": "com.mrshadat.bdfinanceinternshipapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748707610817-prgkdhviiad59ukspf5qbe050f7ps4ji.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxm6UZ7kmT7x8fZ9Y_cXGBftji7_M-Opc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748707610817-prgkdhviiad59ukspf5qbe050f7ps4ji.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

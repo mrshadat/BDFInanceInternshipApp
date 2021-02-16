@@ -2,11 +2,22 @@ package com.mrshadat.bdfinanceinternshipapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.FirebaseDatabase;
+import com.mrshadat.bdfinanceinternshipapp.adapters.DepositAdapter;
+import com.mrshadat.bdfinanceinternshipapp.databinding.FragmentDepositProductBinding;
+import com.mrshadat.bdfinanceinternshipapp.databinding.FragmentHomeBinding;
+import com.mrshadat.bdfinanceinternshipapp.models.Deposit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +25,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class DepositProductFragment extends Fragment {
+
+    FragmentDepositProductBinding depositProductBinding;
+    DepositAdapter adapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +73,34 @@ public class DepositProductFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_deposit_product, container, false);
+        depositProductBinding = FragmentDepositProductBinding.inflate(LayoutInflater.from(getActivity()));
+        return depositProductBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        depositProductBinding.recyclerDeposit.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        FirebaseRecyclerOptions<Deposit> options =
+                new FirebaseRecyclerOptions.Builder<Deposit>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference().child("deposits"), Deposit.class)
+                        .build();
+
+        adapter = new DepositAdapter(options);
+        depositProductBinding.recyclerDeposit.setAdapter(adapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }

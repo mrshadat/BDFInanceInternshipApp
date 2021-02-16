@@ -1,24 +1,45 @@
 package com.mrshadat.bdfinanceinternshipapp;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.mrshadat.bdfinanceinternshipapp.adapters.CustomerAdapter;
 import com.mrshadat.bdfinanceinternshipapp.databinding.FragmentCustomerInfoBinding;
 import com.mrshadat.bdfinanceinternshipapp.databinding.FragmentHomeBinding;
+import com.mrshadat.bdfinanceinternshipapp.models.CustomerInfo;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,10 +47,18 @@ import java.util.Date;
  * create an instance of this fragment.
  */
 public class CustomerInfoFragment extends Fragment {
+    CustomerInfo customerInfo;
+    private Uri filePath;
+    FirebaseStorage storage;
+    DatabaseReference roofref;
+    StorageReference storageReference;
+
+    private final int PICK_IMAGE_REQUEST = 71;
 
     FragmentCustomerInfoBinding customerInfoBinding;
     private long days;
     private String dob = "";
+    String customerID;
 
     private DatePickerDialog.OnDateSetListener dateSetListener =
             new DatePickerDialog.OnDateSetListener() {
@@ -109,6 +138,10 @@ public class CustomerInfoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        roofref = FirebaseDatabase.getInstance().getReference().child("customer");
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
         customerInfoBinding.buttonDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,5 +156,108 @@ public class CustomerInfoFragment extends Fragment {
                 dialog.show();
             }
         });
+
+        customerInfoBinding.buttonAddImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+
+        customerInfoBinding.buttonCreateVisit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                customerID = roofref.push().getKey();
+
+                String eventName = customerInfoBinding.editTextEventName.getText().toString();
+                String mobile = customerInfoBinding.customerMobileEt.getText().toString();
+                String address = customerInfoBinding.customerAddressEt.getText().toString();
+                String profession = customerInfoBinding.spinnerProfession.getSelectedItem().toString();
+                String netWorth = customerInfoBinding.customerNetWorthEt.getText().toString();
+                String birthDate = dob;
+
+                customerInfo = new CustomerInfo(eventName, mobile, address, profession, netWorth, birthDate);
+
+                assert customerID != null;
+                uploadImage();
+                roofref.child(customerID).setValue(customerInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getActivity(), "Customer Visit saved!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        });
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null )
+        {
+            filePath = data.getData();
+            /*try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                imageView.setImageBitmap(bitmap);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }*/
+        }
+    }
+
+    private void uploadImage() {
+
+        if(filePath != null)
+        {
+            final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getActivity(), "Uploaded", Toast.LENGTH_SHORT).show();
+                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    //You will get donwload URL in uri
+                                    //Adding that URL to Realtime database
+                                    roofref.child(customerID).child("imageUrl").setValue(uri.toString());
+                                }
+                            });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getActivity(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        }
+                    });
+        }
     }
 }
