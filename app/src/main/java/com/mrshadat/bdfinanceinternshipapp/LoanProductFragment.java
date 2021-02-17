@@ -2,11 +2,23 @@ package com.mrshadat.bdfinanceinternshipapp;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.FirebaseDatabase;
+import com.mrshadat.bdfinanceinternshipapp.adapters.DepositAdapter;
+import com.mrshadat.bdfinanceinternshipapp.adapters.LoanAdapter;
+import com.mrshadat.bdfinanceinternshipapp.databinding.FragmentDepositProductBinding;
+import com.mrshadat.bdfinanceinternshipapp.databinding.FragmentLoanProductBinding;
+import com.mrshadat.bdfinanceinternshipapp.models.Deposit;
+import com.mrshadat.bdfinanceinternshipapp.models.Loan;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +26,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class LoanProductFragment extends Fragment {
+
+    FragmentLoanProductBinding loanProductBinding;
+    LoanAdapter adapter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +74,34 @@ public class LoanProductFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_loan_product, container, false);
+        loanProductBinding = FragmentLoanProductBinding.inflate(LayoutInflater.from(getActivity()));
+        return loanProductBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        loanProductBinding.recyclerLoan.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        FirebaseRecyclerOptions<Loan> options =
+                new FirebaseRecyclerOptions.Builder<Loan>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference().child("loan"), Loan.class)
+                        .build();
+
+        adapter = new LoanAdapter(options);
+        loanProductBinding.recyclerLoan.setAdapter(adapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }
